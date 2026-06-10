@@ -1,0 +1,70 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "apkscan"
+version = "0.1.0"
+description = "Self-hosted GenAI-powered Android banking-malware analysis & risk-scoring system (MVP: static + GenAI core)"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "AGPL-3.0-or-later" }
+authors = [{ name = "APKScan" }]
+
+# Core + runtime dependencies. Deliberately excludes the heavy static-analysis
+# native libraries (androguard/apkid/quark/yara) and ML stack so the
+# deterministic core stays importable and unit-testable anywhere. Those live in
+# the optional extras below and are installed into the worker image.
+dependencies = [
+    "pydantic>=2.6,<3",
+    "pydantic-settings>=2.2,<3",
+    "fastapi>=0.110,<1",
+    "uvicorn[standard]>=0.29,<1",
+    "python-multipart>=0.0.9",
+    "celery>=5.3,<6",
+    "redis>=5.0,<6",
+    "SQLAlchemy>=2.0,<3",
+    "psycopg2-binary>=2.9,<3",
+    "httpx>=0.27,<1",
+    "reportlab>=4.1,<5",
+    "passlib[bcrypt]>=1.7,<2",
+    "PyJWT>=2.8,<3",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+# Heavy native static-analysis toolchain. Installed in the worker container.
+# Imported lazily so their absence never breaks the deterministic core.
+analyzers = [
+    "androguard>=4.1,<5",
+    "apkid>=2.1",
+    "quark-engine>=24.1",
+    "yara-python>=4.5",
+]
+# Phase 1 ML layer (not part of the MVP; declared for forward-compatibility).
+ml = [
+    "scikit-learn>=1.4",
+    "xgboost>=2.0",
+    "shap>=0.45",
+    "numpy>=1.26",
+    "pandas>=2.2",
+]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+]
+
+[project.scripts]
+apkscan = "apkscan.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["apkscan*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.coverage.run]
+source = ["apkscan"]
+omit = ["apkscan/static_analysis/*_analyzer.py", "apkscan/genai/llm_client.py"]

@@ -1,0 +1,26 @@
+# Web / API service — lightweight, deterministic core only (no native analyzers).
+FROM python:3.12-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+# Minimal runtime deps (libpq for psycopg2).
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libpq5 curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY pyproject.toml README.md ./
+COPY apkscan ./apkscan
+RUN pip install --upgrade pip && pip install .
+
+# Run as non-root.
+RUN useradd --create-home --uid 10001 apkscan \
+    && mkdir -p /var/lib/apkscan/storage \
+    && chown -R apkscan:apkscan /var/lib/apkscan
+USER apkscan
+
+EXPOSE 8080
+CMD ["uvicorn", "apkscan.api.main:app", "--host", "0.0.0.0", "--port", "8080"]

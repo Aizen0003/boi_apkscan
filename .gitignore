@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local runtime state / object storage / artifacts (may contain live malware)
+/var/
+/data/storage/
+/data/uploads/
+*.apk
+*.sqlite
+*.db
+
+# Secrets
+.env
+*.pem
+*.key
+
+# Editor
+.idea/
+.vscode/
+*.swp

@@ -1,0 +1,54 @@
+# Static-analysis worker — full native toolchain.
+# Includes: Java (jadx/apktool), YARA, and the Python analyzer extras
+# (androguard, apkid, quark-engine, yara-python).
+FROM python:3.12-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    JADX_VERSION=1.5.0 \
+    APKTOOL_VERSION=2.10.0 \
+    JADX_HOME=/opt/jadx \
+    APKTOOL_BIN=/usr/local/bin/apktool
+
+WORKDIR /app
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        libpq5 curl unzip default-jre-headless yara libmagic1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# jadx (DEX -> Java decompiler), used for per-function chunking of code.
+RUN curl -fsSL -o /tmp/jadx.zip \
+        "https://github.com/skylot/jadx/releases/download/v${JADX_VERSION}/jadx-${JADX_VERSION}.zip" \
+    && mkdir -p ${JADX_HOME} \
+    && unzip -q /tmp/jadx.zip -d ${JADX_HOME} \
+    && ln -s ${JADX_HOME}/bin/jadx /usr/local/bin/jadx \
+    && rm /tmp/jadx.zip
+
+# apktool (resource + manifest decode, baksmali).
+RUN curl -fsSL -o ${APKTOOL_BIN} \
+        "https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool" \
+    && curl -fsSL -o /usr/local/bin/apktool.jar \
+        "https://github.com/iBotPeaches/Apktool/releases/download/v${APKTOOL_VERSION}/apktool_${APKTOOL_VERSION}.jar" \
+    && chmod +x ${APKTOOL_BIN}
+
+COPY pyproject.toml README.md ./
+COPY apkscan ./apkscan
+RUN pip install --upgrade pip && pip install ".[analyzers]"
+
+# Internal YARA rules ship with the image.
+COPY data/yara_rules /opt/apkscan/yara_rules
+COPY data/attack /opt/apkscan/attack
+COPY data/threat_intel /opt/apkscan/threat_intel
+
+RUN useradd --create-home --uid 10001 apkscan \
+    && mkdir -p /var/lib/apkscan/storage \
+    && chown -R apkscan:apkscan /var/lib/apkscan
+USER apkscan
+
+# Fetch the Quark-Engine rule dataset into ~/.quark-engine (best-effort; the
+# QuarkAnalyzer degrades to an analysis gap if absent).
+RUN freshquark || true
+
+CMD ["celery", "-A", "apkscan.jobs.celery_app:celery_app", "worker", "-Q", "urgent,default", "--loglevel=INFO", "--concurrency=2"]
