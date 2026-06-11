@@ -1,4 +1,4 @@
-# APKScan — Self-Hosted Android Banking-Malware Analysis & Risk-Scoring
+# APKScan - Self-Hosted Android Banking-Malware Analysis & Risk-Scoring
 
 A self-hosted system that analyzes suspicious Android APKs with **deterministic
 static analysis** and a **local LLM interpretation layer**, producing
