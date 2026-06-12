@@ -35,8 +35,13 @@
 | T0.19 | Integration/export interface | DONE | `/reports/{id}/export` verdict+IOCs+STIX-2.1 bundle; off critical path; tested. |
 | T0.20 | End-to-end MVP wiring + decision rule | DONE | `pipeline.run_analysis` spine + `apkscan` CLI; local E2E (no commercial egress) verified live (JSON+PDF); API E2E tested; decision rule enforced. |
 
-## Phase 1 — ML layer + drift (out of MVP scope; not started)
-TODO — schema already reserves ML evidence/feature seams (T1.x).
+## Phase 1 — ML layer + drift
+
+| Task | Title | Status | Notes |
+|------|-------|--------|-------|
+| T1.1 | ML Settings & Feature Engineering | DONE | `Settings` support; fixed-vocabulary `FeatureEncoder`; `load_dataset` parsing & labeling; tested. |
+| T1.2 | Model Training & SHAP Explanations | DONE | RF and XGBoost classifiers; load/save serialization; `MLExplainer` SHAP attributions with fallback; tested. |
+| T1.3 | Fusion, Temporal Validation & Drift Monitoring | DONE | Blended scoring fusion; chronological `temporal_train_test_split`; F1-based concept drift monitor; PSI & rule-ML divergence monitor; tested. |
 
 ## Phase 2 — Dynamic sandbox (stretch; gated on governance sign-off; not started)
 TODO — schema reserves a `dynamic` section; escalation flag already produced (T2.x).
@@ -92,13 +97,14 @@ TODO — schema reserves a `dynamic` section; escalation flag already produced (
   runnable on this 8 GB host; deterministic core and adapters are unit-tested
   with fixtures/mocks, and the Compose stack targets a 24 GB host.)
 
-## Verification snapshot (Phase 0 MVP COMPLETE)
-- **112 tests green; 92% line coverage** over the testable surface
+## Verification snapshot (Phase 1 COMPLETE)
+- **150 tests green; 92% line coverage** over the testable surface
   (`pytest --cov=apkscan`). Native analyzer adapters are coverage-omitted (they
   run only in the worker image).
 - Unit (TEST_PLAN): schema serializer, permission-weight/combo scoring, Quark/
   YARA scoring, ATT&CK id resolution, prompt untrusted-string isolation,
   grounding/citation enforcement, report PDF/JSON serializer.
+- ML Integration: FeatureEncoder fixed vocabulary; dataset loader; Random Forest & XGBoost trainers; serialization; MLExplainer SHAP attributions with fallback; blended scoring fusion; chronological temporal split; F1 concept drift monitor; PSI & rule-ML divergence monitor.
 - Integration: MobSF(mock)->features; static features+GenAI->fusion->verdict;
   report+findings index+audit written; auth/RBAC; sign-off; export.
 - E2E: `apkscan analyze` runs the full local pipeline with no commercial egress,
@@ -110,3 +116,4 @@ TODO — schema reserves a `dynamic` section; escalation flag already produced (
   duplicate uploads deduped.
 - `docker compose config` validates the single-host stack. Live multi-GB boot
   (MobSF + Ollama 7B/32B) targets the deployment host, not this 8 GB laptop.
+
