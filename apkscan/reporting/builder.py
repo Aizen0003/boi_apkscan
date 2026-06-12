@@ -80,6 +80,30 @@ def _recommendations(
             f"Note: analyzers unavailable ({', '.join(core_gaps)}); results may understate risk."
         )
 
+    # ── Dynamic analysis findings ──
+    dyn = features.dynamic
+    if dyn and dyn.captured:
+        if dyn.sms_events:
+            recs.append(
+                f"[Dynamic] SMS interception confirmed at runtime: {len(dyn.sms_events)} event(s) captured."
+            )
+        if dyn.network_endpoints:
+            endpoints_preview = ", ".join(dyn.network_endpoints[:5])
+            recs.append(
+                f"[Dynamic] Network C2 communication observed: {endpoints_preview}"
+            )
+        if dyn.file_ops:
+            crypto_ops = [f for f in dyn.file_ops if "DECRYPT" in f or "EXEC" in f]
+            if crypto_ops:
+                recs.append(
+                    f"[Dynamic] Runtime code decryption/execution detected: {'; '.join(crypto_ops[:3])}"
+                )
+        if dyn.notes and "evasion" in dyn.notes.lower():
+            recs.append(
+                "[Dynamic] WARNING: Sample exhibited sandbox evasion behaviour. "
+                "Results may understate actual risk — consider alternative analysis environment."
+            )
+
     # advisory GenAI recommendations (grounded/interpretive), clearly secondary
     if genai and genai.generated:
         for rec in genai.recommendations:
@@ -93,11 +117,27 @@ def _summary(features: FeatureSet, score: ScoreResult, genai: Optional[GenAIInte
     if genai and genai.generated and genai.summary:
         return genai.summary
     categories = sorted({e.category for e in score.evidence if e.weight > 0})
+
+    # Include dynamic analysis note in summary if available
+    dyn_note = ""
+    dyn = features.dynamic
+    if dyn and dyn.captured:
+        dyn_findings = sum([
+            bool(dyn.sms_events),
+            bool(dyn.network_endpoints),
+            bool(dyn.api_trace),
+            bool(dyn.file_ops),
+        ])
+        if dyn_findings > 0:
+            dyn_note = f" Dynamic sandbox confirmed {dyn_findings} finding category(ies)."
+        else:
+            dyn_note = " Dynamic sandbox ran but found no additional indicators."
+
     return (
         f"Deterministic analysis classifies this sample as {score.verdict.value} "
         f"(severity {score.severity.value}, score {score.risk_score:.1f}/100) based on "
         f"{len([e for e in score.evidence if e.weight > 0])} indicator(s) across categories: "
-        f"{', '.join(categories) or 'none'}."
+        f"{', '.join(categories) or 'none'}.{dyn_note}"
     )
 
 
@@ -136,3 +176,4 @@ def build_report_document(
         analysis_gaps=list(features.analysis_gaps),
         genai=genai or GenAIInterpretation(),
     )
+

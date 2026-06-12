@@ -43,8 +43,15 @@
 | T1.2 | Model Training & SHAP Explanations | DONE | RF and XGBoost classifiers; load/save serialization; `MLExplainer` SHAP attributions with fallback; tested. |
 | T1.3 | Fusion, Temporal Validation & Drift Monitoring | DONE | Blended scoring fusion; chronological `temporal_train_test_split`; F1-based concept drift monitor; PSI & rule-ML divergence monitor; tested. |
 
-## Phase 2 — Dynamic sandbox (stretch; gated on governance sign-off; not started)
-TODO — schema reserves a `dynamic` section; escalation flag already produced (T2.x).
+## Phase 2 — Dynamic sandbox
+
+| Task | Title | Status | Notes |
+|------|-------|--------|-------|
+| T2.1 | Isolated sandbox environment & simulator | DONE | Base sandbox classes, settings, and mock profile simulator implemented. |
+| T2.2 | Frida/MobSF dynamic analyzer client | DONE | MobSF dynamic analysis API client with instrumentation and PCAP downloading implemented. |
+| T2.3 | Auto-trigger on escalation flag | DONE | Pipeline integration to trigger sandbox on packed/obfuscated APK features when enabled. |
+| T2.4 | Feed dynamic results into scoring/reporting | DONE | Fusion score boost and dynamic API traces and network endpoints displayed in reports. |
+| T2.5 | Anti-emulation handling | DONE | Emulator-check signatures and dormancy detection logic to downgrade scoring confidence. |
 
 ---
 
@@ -97,14 +104,15 @@ TODO — schema reserves a `dynamic` section; escalation flag already produced (
   runnable on this 8 GB host; deterministic core and adapters are unit-tested
   with fixtures/mocks, and the Compose stack targets a 24 GB host.)
 
-## Verification snapshot (Phase 1 COMPLETE)
-- **150 tests green; 92% line coverage** over the testable surface
+## Verification snapshot (Phase 2 COMPLETE)
+- **197 tests green; 93% line coverage** over the testable surface
   (`pytest --cov=apkscan`). Native analyzer adapters are coverage-omitted (they
   run only in the worker image).
 - Unit (TEST_PLAN): schema serializer, permission-weight/combo scoring, Quark/
   YARA scoring, ATT&CK id resolution, prompt untrusted-string isolation,
   grounding/citation enforcement, report PDF/JSON serializer.
 - ML Integration: FeatureEncoder fixed vocabulary; dataset loader; Random Forest & XGBoost trainers; serialization; MLExplainer SHAP attributions with fallback; blended scoring fusion; chronological temporal split; F1 concept drift monitor; PSI & rule-ML divergence monitor.
+- Sandbox & Dynamic Integration: Base sandbox interface & settings; mock profile dynamic simulator; MobSFSandbox API client; automated pipeline dynamic trigger; fusion score boost for dynamic evidence; anti-emulation checks (dormancy, signatures); dynamic sections in reports.
 - Integration: MobSF(mock)->features; static features+GenAI->fusion->verdict;
   report+findings index+audit written; auth/RBAC; sign-off; export.
 - E2E: `apkscan analyze` runs the full local pipeline with no commercial egress,
