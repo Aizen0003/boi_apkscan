@@ -68,6 +68,8 @@ class Settings(BaseSettings):
 
     # --- dynamic analysis (Phase 2; gated on governance sign-off) ---
     dynamic_enabled: bool = False
+    sandbox_backend: Literal["mobsf", "simulator"] = "simulator"
+    sandbox_timeout: int = 60  # seconds; maximum wall-clock time per sample
 
     # --- auth ---
     jwt_algorithm: str = "HS256"

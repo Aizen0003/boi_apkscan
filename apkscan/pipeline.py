@@ -6,6 +6,7 @@ GenAI interpretation is produced and attached but passed to fusion as
 explanatory-only. Used by both the Celery worker and the CLI.
 """
 
+import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Sequence
@@ -19,6 +20,8 @@ from apkscan.scoring.rule_engine import score_rules
 from apkscan.static_analysis.base import Analyzer
 from apkscan.static_analysis.decompile import decompile_apk
 from apkscan.static_analysis.extractor import extract_features
+
+logger = logging.getLogger("apkscan.pipeline")
 
 
 @dataclass
@@ -45,6 +48,26 @@ def run_analysis(
     # 1) deterministic static feature extraction (+ escalation flag)
     features = extract_features(apk_path, sample, analyzers=analyzers, settings=settings)
 
+    # 1b) dynamic sandbox — auto-trigger when enabled AND escalation is flagged
+    if settings.dynamic_enabled and features.escalation.escalate:
+        try:
+            from apkscan.dynamic_analysis.factory import get_sandbox_client
+
+            sandbox = get_sandbox_client(settings)
+            features.dynamic = sandbox.analyze(apk_path, features)
+            logger.info(
+                "Dynamic analysis completed: %d API traces, %d network endpoints",
+                len(features.dynamic.api_trace),
+                len(features.dynamic.network_endpoints),
+            )
+        except Exception:
+            logger.exception("Dynamic sandbox failed; continuing with static-only")
+            from apkscan.schema import AnalysisGap
+
+            features.analysis_gaps.append(
+                AnalysisGap(tool="dynamic_sandbox", reason="Sandbox execution failed", severity="warning")
+            )
+
     # 2) deterministic rule scoring (the primary, decisive layer)
     rule_result = score_rules(features)
 
@@ -60,3 +83,4 @@ def run_analysis(
     report = build_report_document(features, score, genai, report_id=report_id)
 
     return AnalysisOutcome(features=features, score=score, genai=genai, report=report)
+
