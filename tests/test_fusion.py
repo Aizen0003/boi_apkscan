@@ -139,3 +139,123 @@ def test_permission_only_not_downgraded_when_analyzers_missing():
     result = fuse(features, rr, settings=_settings())
     assert result.verdict == Verdict.MALICIOUS  # uncertainty reflected via confidence, not under-reporting
     assert result.confidence < 0.7
+
+
+# --- ML fusion integration ---
+def test_ml_fusion_disabled_by_default(benign_features):
+    # ML is disabled by default, so score should equal rule score
+    rr = score_rules(benign_features)
+    result = fuse(benign_features, rr, settings=_settings())
+    assert result.risk_score == rr.normalized_score
+    # No ML layer score or evidence should have contributed
+    ml_layer = next(l for l in result.layer_scores if l.layer == EvidenceLayer.ML)
+    assert ml_layer.contributed is False
+
+
+def test_ml_fusion_active_and_blended(benign_features, tmp_path):
+    from unittest.mock import patch
+    
+    # Enable ML in settings
+    settings = Settings(
+        _env_file=None,
+        ml_enabled=True,
+        ml_model_path=str(tmp_path / "dummy_model.pkl"),
+        ml_fusion_weight=0.4
+    )
+    
+    # Mock model loading and prediction
+    with patch("apkscan.scoring.ml_trainer.load_classifier") as mock_load, \
+         patch("apkscan.scoring.ml_trainer.predict_threat_probability") as mock_predict, \
+         patch("apkscan.scoring.ml_explainer.MLExplainer") as mock_explainer_cls:
+        
+        mock_load.return_value = "dummy_model_object"
+        mock_predict.return_value = 0.8  # ML score 80.0
+        
+        # Mock SHAP Explainer
+        mock_explainer = mock_explainer_cls.return_value
+        mock_explainer.explain_prediction.return_value = {"perm:READ_SMS": 0.2, "api:SmsManager": 0.15}
+        mock_explainer.format_explanation.return_value = "READ_SMS (+0.20), SmsManager (+0.15)"
+        
+        rr = score_rules(benign_features) # rule score is low (usually ~5.4)
+        result = fuse(benign_features, rr, settings=settings)
+        
+        # blended score = 0.6 * rule_score + 0.4 * 80.0
+        expected = 0.6 * rr.normalized_score + 0.4 * 80.0
+        assert abs(result.risk_score - expected) < 1e-9
+        
+        # Verify evidence item is added
+        ml_ev = next(e for e in result.evidence if e.layer == EvidenceLayer.ML)
+        assert ml_ev.weight == 80.0
+        assert ml_ev.confidence == 0.8
+        assert "READ_SMS" in ml_ev.detail
+        
+        # Verify layer score is marked contributed
+        ml_layer = next(l for l in result.layer_scores if l.layer == EvidenceLayer.ML)
+        assert ml_layer.contributed is True
+        assert ml_layer.weight_in_fusion == 0.4
+        
+        rule_layer = next(l for l in result.layer_scores if l.layer == EvidenceLayer.RULE)
+        assert rule_layer.weight_in_fusion == 0.6
+
+
+def test_ml_fusion_graceful_fallback_when_model_missing(benign_features, tmp_path):
+    from unittest.mock import patch
+    
+    settings = Settings(
+        _env_file=None,
+        ml_enabled=True,
+        ml_model_path=str(tmp_path / "nonexistent.pkl"),
+        ml_fusion_weight=0.3
+    )
+    
+    # load_classifier returns None when file is missing
+    with patch("apkscan.scoring.ml_trainer.load_classifier", return_value=None):
+        rr = score_rules(benign_features)
+        result = fuse(benign_features, rr, settings=settings)
+        # Fall back to rule score
+        assert result.risk_score == rr.normalized_score
+        
+        ml_layer = next(l for l in result.layer_scores if l.layer == EvidenceLayer.ML)
+        assert ml_layer.contributed is False
+        assert "disabled or model not loaded" in ml_layer.note
+
+
+def test_ml_fusion_respects_permissions_only_safety_cap(tmp_path):
+    from unittest.mock import patch
+    
+    # Enable ML
+    settings = Settings(
+        _env_file=None,
+        ml_enabled=True,
+        ml_model_path=str(tmp_path / "dummy_model.pkl"),
+        ml_fusion_weight=0.5
+    )
+    
+    # Setup permissions-only features (no behavior or other corroborators)
+    perms = [
+        "android.permission.BIND_ACCESSIBILITY_SERVICE",
+        "android.permission.READ_SMS",
+        "android.permission.INTERNET",
+    ]
+    features = FeatureSet(
+        sample=SampleMetadata(sha256="c" * 64, file_size=1),
+        permissions=[Permission(name=p) for p in perms],
+    )
+    
+    with patch("apkscan.scoring.ml_trainer.load_classifier", return_value="model"), \
+         patch("apkscan.scoring.ml_trainer.predict_threat_probability", return_value=0.9), \
+         patch("apkscan.scoring.ml_explainer.MLExplainer") as mock_exp:
+        
+        mock_exp.return_value.explain_prediction.return_value = {}
+        mock_exp.return_value.format_explanation.return_value = ""
+        
+        rr = score_rules(features)
+        result = fuse(features, rr, settings=settings)
+        
+        # The fused score should be high enough to trigger Malicious, but
+        # because we only have permissions, it should be capped to Suspicious
+        assert result.verdict == Verdict.SUSPICIOUS
+        assert result.requires_signoff is False
+        assert "capped" in result.rationale.lower()
+
+
