@@ -58,6 +58,11 @@ class Settings(BaseSettings):
     # --- scoring operating point ---
     operating_mode: Literal["balanced", "high_recall"] = "balanced"
 
+    # --- ML layer (Phase 1; disabled by default until a trained model is present) ---
+    ml_enabled: bool = False
+    ml_model_path: str = "data/model.pkl"
+    ml_fusion_weight: float = 0.3  # 0.0..1.0 — weight of ML score in fusion
+
     # --- retention / chain-of-custody ---
     retention_days: int = 365
 

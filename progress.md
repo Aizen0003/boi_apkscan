@@ -27,8 +27,8 @@
 | T0.11 | RAG over ATT&CK + internal TI | DONE | Local TF-IDF over ATT&CK v19.1 + internal TI corpus (FatBoyPanel/SOVA/Anatsa...); provenance recorded; tested. |
 | T0.12 | GenAI grounding/citation enforcement | DONE | Claims must cite existing artifacts else withheld; ATT&CK ids validated; failure-rate computed; tested. |
 | T0.13 | Hybrid scoring fusion | DONE | Rule decides; GenAI weight-0; no-Malicious-on-permissions-alone guard; fail-safe confidence; reproducible; tested. |
-| T0.14 | Report generator (PDF + JSON) | TODO | reportlab; full report contents. |
-| T0.15 | Artifact storage + searchable findings | TODO | Object store + DB findings index; retention. |
+| T0.14 | Report generator (PDF + JSON) | DONE | reportlab; PDF and JSON formats implemented and tested. |
+| T0.15 | Artifact storage + searchable findings | DONE | Object store + DB findings index + retention implemented and tested. |
 | T0.16 | Audit logging | DONE | Hash-chained append-only log across ingest/job/scoring/report/sign-off/auth; tamper-evident; chain verified in tests. |
 | T0.17 | AuthN/AuthZ | DONE | JWT bearer + bcrypt + RBAC (admin/analyst/viewer); unauthorized 401 / forbidden 403 enforced; tested. |
 | T0.18 | Analyst review + sign-off for High/Critical | DONE | `requires_signoff` -> report PENDING_SIGNOFF; analyst approve->FINAL / reject->REJECTED; double-signoff 409; tested. |

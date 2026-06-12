@@ -28,3 +28,9 @@ htmlcov/
 .idea/
 .vscode/
 *.swp
+
+#Agents
+
+.agent
+.gemini
+

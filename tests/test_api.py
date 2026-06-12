@@ -45,6 +45,10 @@ def client(tmp_path, monkeypatch):
 
     base.configure(url=f"sqlite:///{tmp_path / 'api.db'}")
     base.init_db()
+    from apkscan.jobs.celery_app import celery_app
+    celery_app.conf.task_always_eager = True
+    celery_app.conf.task_eager_propagates = True
+
     from apkscan.auth.service import create_user
     from apkscan.db.models import Role
 
