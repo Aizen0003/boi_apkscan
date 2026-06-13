@@ -23,7 +23,21 @@ def _rules_dir() -> Optional[Path]:
     for cand in candidates:
         if cand and Path(cand).is_dir():
             return Path(cand)
+            
+    # Try to dynamically download rules using freshquark if quark-engine is installed
+    try:
+        import subprocess
+        # Check if quark library is available
+        import quark  # noqa: F401
+        subprocess.run(["freshquark"], capture_output=True, text=True, check=False)
+        fallback = Path(os.path.expanduser("~/.quark-engine/quark-rules"))
+        if fallback.is_dir():
+            return fallback
+    except Exception:
+        pass
+        
     return None
+
 
 
 def _confidence_to_stage(confidence_percent: float) -> int:
