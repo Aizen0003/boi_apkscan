@@ -39,6 +39,7 @@ report.json
 report.pdf
 
 # Local workspace directories to ignore
-storage/
+/storage/
 design_references/
+
 
