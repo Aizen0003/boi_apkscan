@@ -116,7 +116,10 @@ def get_report_pdf(report_id: str, user=Depends(require_reader), db: Session = D
     report = _load_report(db, report_id)
     if not report.report_pdf_key or not store.exists(report.report_pdf_key):
         raise HTTPException(status_code=404, detail="PDF not available")
-    return Response(content=store.get_bytes(report.report_pdf_key), media_type="application/pdf")
+    headers = {
+        "Content-Disposition": f'attachment; filename="apkscan_report_{report_id}.pdf"'
+    }
+    return Response(content=store.get_bytes(report.report_pdf_key), media_type="application/pdf", headers=headers)
 
 
 @router.post("/reports/{report_id}/signoff", response_model=ReportSummary)

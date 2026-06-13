@@ -36,7 +36,7 @@ dependencies = [
 # Heavy native static-analysis toolchain. Installed in the worker container.
 # Imported lazily so their absence never breaks the deterministic core.
 analyzers = [
-    "androguard>=4.1,<5",
+    "androguard>=3.4.0a1,<4.0",
     "apkid>=2.1",
     "quark-engine>=24.1",
     "yara-python>=4.5",
