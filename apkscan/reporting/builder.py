@@ -177,3 +177,4 @@ def build_report_document(
         genai=genai or GenAIInterpretation(),
     )
 
+

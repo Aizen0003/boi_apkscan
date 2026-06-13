@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>APKScan | Sign In</title>
+    <meta name="description" content="Sign in to APKScan — Self-hosted Android banking-malware analysis dashboard" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/css/styles.css" />
+    <style>
+        .login-shield {
+            font-size: 64px;
+            color: var(--color-primary);
+            opacity: 0.9;
+            filter: drop-shadow(0 0 20px rgba(78, 222, 163, 0.3));
+        }
+        .login-error {
+            background: var(--color-error-container);
+            color: var(--color-on-surface);
+            padding: 10px 16px;
+            border-radius: var(--radius-lg);
+            font-size: 14px;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .login-error.visible { display: flex; align-items: center; gap: 8px; }
+        .login-footer {
+            color: var(--color-on-surface-variant);
+            font-size: 12px;
+            text-align: center;
+            margin-top: 32px;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card glass-card">
+            <!-- Logo -->
+            <div class="text-center mb-8">
+                <span class="material-symbols-outlined login-shield">shield_lock</span>
+                <h1 class="text-headline-lg text-primary" style="margin-top: 16px;">APKScan</h1>
+                <p class="text-body-sm text-muted" style="margin-top: 8px;">
+                    Self-hosted Android malware analysis
+                </p>
+            </div>
+
+            <!-- Error Banner -->
+            <div id="login-error" class="login-error">
+                <span class="material-symbols-outlined" style="font-size: 18px; color: var(--color-error);">error</span>
+                <span id="login-error-text">Invalid credentials</span>
+            </div>
+
+            <!-- Form -->
+            <form id="login-form" onsubmit="return handleLogin(event)">
+                <div class="mb-4">
+                    <label class="text-label-caps text-muted" style="display: block; margin-bottom: 8px;">Username</label>
+                    <input
+                        id="login-username"
+                        type="text"
+                        class="login-input"
+                        placeholder="Enter your username"
+                        autocomplete="username"
+                        required
+                    />
+                </div>
+                <div class="mb-6">
+                    <label class="text-label-caps text-muted" style="display: block; margin-bottom: 8px;">Password</label>
+                    <input
+                        id="login-password"
+                        type="password"
+                        class="login-input"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                        required
+                    />
+                </div>
+                <button type="submit" id="login-btn" class="btn btn-gradient w-full" style="padding: 14px; font-size: 14px;">
+                    <span class="material-symbols-outlined">login</span>
+                    Sign In
+                </button>
+            </form>
+
+            <div class="login-footer">
+                <p>GenAI is interpretive only — deterministic analysis decides all verdicts.</p>
+                <p style="margin-top: 4px;">On-premises deployment · No data egress</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/api.js"></script>
+    <script>
+        // If already logged in, redirect to dashboard
+        if (API.isLoggedIn()) {
+            window.location.href = '/';
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const btn = document.getElementById('login-btn');
+            const errDiv = document.getElementById('login-error');
+            const errText = document.getElementById('login-error-text');
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            errDiv.classList.remove('visible');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner" style="width:18px;height:18px;border-width:2px;"></span> Signing in...';
+
+            try {
+                await API.login(username, password);
+                window.location.href = '/';
+            } catch (err) {
+                errText.textContent = err.message || 'Invalid credentials';
+                errDiv.classList.add('visible');
+                btn.disabled = false;
+                btn.innerHTML = '<span class="material-symbols-outlined">login</span> Sign In';
+            }
+            return false;
+        }
+    </script>
+</body>
+</html>

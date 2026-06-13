@@ -33,4 +33,12 @@ htmlcov/
 
 .agent
 .gemini
+.gsd/
+GSD-STYLE.md
+report.json
+report.pdf
+
+# Local workspace directories to ignore
+storage/
+design_references/
 

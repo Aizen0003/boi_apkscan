@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>APKScan | Analysis Dashboard</title>
+    <meta name="description" content="APKScan — Self-hosted Android banking-malware analysis and risk-scoring dashboard" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/css/styles.css" />
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <span class="material-symbols-outlined" style="font-size: 28px;">shield_lock</span>
+            APKScan
+        </div>
+        <div class="navbar-links">
+            <a href="/" class="navbar-link active">Overview</a>
+            <a href="#upload-section" class="navbar-link">Upload</a>
+            <a href="#recent-section" class="navbar-link">History</a>
+        </div>
+        <div class="navbar-actions">
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="text-headline-md text-primary" style="font-weight: 700;">APKScan</div>
+            <div class="text-body-sm text-muted">Dashboard</div>
+        </div>
+        <button class="btn btn-primary w-full mb-8" onclick="document.getElementById('upload-section').scrollIntoView({behavior:'smooth'})" style="padding: 14px;">
+            <span class="material-symbols-outlined">add</span>
+            New Scan
+        </button>
+        <nav class="sidebar-nav">
+            <a href="#hero" class="sidebar-link active">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span>Overview</span>
+            </a>
+            <a href="#upload-section" class="sidebar-link">
+                <span class="material-symbols-outlined">upload_file</span>
+                <span>Upload</span>
+            </a>
+            <a href="#recent-section" class="sidebar-link">
+                <span class="material-symbols-outlined">history</span>
+                <span>Recent Analyses</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero" id="hero">
+            <div class="hero-bg"></div>
+            <div class="hero-content">
+                <h1 class="text-headline-lg" style="color: white; margin-bottom: 8px;">
+                    APKScan Analysis Dashboard
+                </h1>
+                <p class="text-body-md text-muted">
+                    Self-hosted Android banking-malware analysis &amp; risk-scoring system.
+                    GenAI is interpretive only — deterministic analysis decides all verdicts.
+                </p>
+            </div>
+        </section>
+
+        <!-- Quick Stats (populated from most recent report) -->
+        <div class="stats-grid" id="stats-grid" style="display: none;">
+            <!-- Risk Score -->
+            <div class="glass-card stat-card" id="stat-risk">
+                <div class="risk-gauge">
+                    <svg viewBox="0 0 80 80" width="80" height="80">
+                        <circle cx="40" cy="40" r="36" fill="transparent" stroke="var(--color-surface-variant)" stroke-width="4" />
+                        <circle id="risk-ring" cx="40" cy="40" r="36" fill="transparent" stroke="var(--color-primary)" stroke-width="4"
+                            stroke-dasharray="226" stroke-dashoffset="226" stroke-linecap="round" />
+                    </svg>
+                    <span class="score-text text-primary" id="risk-score-text">—</span>
+                </div>
+                <span class="text-label-caps text-muted">Risk Score</span>
+            </div>
+            <!-- Verdict -->
+            <div class="glass-card stat-card" id="stat-verdict">
+                <div class="verdict-badge benign" id="verdict-badge">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 20px;">check_circle</span>
+                    <span id="verdict-text">—</span>
+                </div>
+                <span class="text-label-caps text-muted" style="margin-top: 8px;">Latest Verdict</span>
+            </div>
+            <!-- Confidence -->
+            <div class="glass-card stat-card" id="stat-confidence" style="align-items: stretch;">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-headline-md" id="confidence-text">—</span>
+                    <span class="text-label-caps text-muted">Confidence</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-bar-fill primary" id="confidence-bar" style="width: 0%;"></div>
+                </div>
+            </div>
+            <!-- Severity -->
+            <div class="glass-card stat-card" id="stat-severity">
+                <div class="text-headline-md" id="severity-text" style="font-size: 32px; font-weight: 700;">—</div>
+                <div class="severity-dots mb-2" id="severity-dots">
+                    <div class="severity-dot"></div>
+                    <div class="severity-dot"></div>
+                    <div class="severity-dot"></div>
+                    <div class="severity-dot"></div>
+                </div>
+                <span class="text-label-caps text-muted">Severity Level</span>
+            </div>
+        </div>
+
+        <!-- Upload Section -->
+        <section class="mb-8" id="upload-section">
+            <details class="glass-card" open style="border-radius: var(--radius-2xl); overflow: hidden;">
+                <summary class="flex items-center justify-between p-6" style="cursor: pointer; list-style: none;">
+                    <div class="flex items-center gap-4">
+                        <div style="width:40px; height:40px; border-radius: var(--radius-lg); background: rgba(78,222,163,0.1); display:flex; align-items:center; justify-content:center;">
+                            <span class="material-symbols-outlined text-primary">upload_file</span>
+                        </div>
+                        <div>
+                            <h3 class="text-headline-md" style="font-weight: 600;">Analyze New Application</h3>
+                            <p class="text-body-sm text-muted">Supported formats: .apk (Max 2GB)</p>
+                        </div>
+                    </div>
+                    <span class="material-symbols-outlined text-muted">expand_more</span>
+                </summary>
+                <div style="padding: 32px; border-top: 1px solid rgba(60,74,66,0.1);">
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 32px;">
+                        <!-- Upload Zone -->
+                        <div>
+                            <div class="upload-zone" id="upload-dropzone">
+                                <input type="file" id="file-input" accept=".apk" style="display:none;" />
+                                <span class="material-symbols-outlined" style="font-size: 48px; color: var(--color-primary-container); margin-bottom: 16px;">cloud_upload</span>
+                                <p class="text-body-lg" style="margin-bottom: 4px;">Drag &amp; drop your APK file here</p>
+                                <p class="text-muted" style="margin-bottom: 24px;">or <span class="text-primary" style="font-weight: 700; cursor: pointer;" onclick="document.getElementById('file-input').click()">browse files</span> on your computer</p>
+                            </div>
+                        </div>
+
+                        <!-- Upload Status -->
+                        <div id="upload-status" class="hidden">
+                            <div class="glass-card p-6" style="border-left: 4px solid var(--color-primary);">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <span class="spinner" id="upload-spinner"></span>
+                                    <span class="text-body-md" id="upload-status-text">Preparing upload...</span>
+                                </div>
+                                <div class="progress-bar mb-4">
+                                    <div class="progress-bar-fill primary" id="upload-progress" style="width: 0%; transition: width 0.3s ease;"></div>
+                                </div>
+                                <div class="text-code-sm text-muted" id="upload-detail"></div>
+                            </div>
+                        </div>
+
+                        <!-- Priority -->
+                        <div class="flex items-center gap-4" style="flex-wrap: wrap;">
+                            <span class="text-label-caps text-muted">Priority:</span>
+                            <label class="flex items-center gap-2" style="cursor: pointer;">
+                                <input type="radio" name="priority" value="default" checked style="accent-color: var(--color-primary);" />
+                                <span class="text-body-sm">Default</span>
+                            </label>
+                            <label class="flex items-center gap-2" style="cursor: pointer;">
+                                <input type="radio" name="priority" value="urgent" style="accent-color: var(--color-primary);" />
+                                <span class="text-body-sm">Urgent</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </details>
+        </section>
+
+        <!-- Recent Analyses -->
+        <section id="recent-section">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-headline-md">Recent Analyses</h2>
+                <div class="flex gap-2">
+                    <select id="filter-verdict" class="login-input" style="width: auto; padding: 8px 12px; font-size: 13px;">
+                        <option value="">All Verdicts</option>
+                        <option value="Benign">Benign</option>
+                        <option value="Suspicious">Suspicious</option>
+                        <option value="Malicious">Malicious</option>
+                    </select>
+                </div>
+            </div>
+            <div id="analyses-list" class="flex flex-col gap-3">
+                <!-- Populated by JS -->
+            </div>
+            <div id="analyses-empty" class="hidden glass-card p-6 text-center text-muted" style="border-radius: var(--radius-2xl);">
+                <span class="material-symbols-outlined" style="font-size: 48px; opacity: 0.3; display: block; margin-bottom: 12px;">search_off</span>
+                <p class="text-body-md">No analyses found. Upload an APK to get started.</p>
+            </div>
+            <div id="analyses-loading" class="text-center p-6">
+                <span class="spinner" style="margin: 0 auto;"></span>
+            </div>
+        </section>
+    </main>
+
+    <!-- Bottom Nav (Mobile) -->
+    <nav class="bottom-nav">
+        <a href="/" class="bottom-nav-item active">
+            <span class="material-symbols-outlined">dashboard</span>
+            <span>Dashboard</span>
+        </a>
+        <a href="#upload-section" class="bottom-nav-item">
+            <span class="material-symbols-outlined">upload_file</span>
+            <span>Upload</span>
+        </a>
+        <a href="#recent-section" class="bottom-nav-item">
+            <span class="material-symbols-outlined">history</span>
+            <span>History</span>
+        </a>
+    </nav>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>

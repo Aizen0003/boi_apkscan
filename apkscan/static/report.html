@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>APKScan | Report Viewer</title>
+    <meta name="description" content="APKScan interactive malware analysis report viewer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/css/styles.css" />
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="/" class="navbar-brand" style="text-decoration: none;">
+            <span class="material-symbols-outlined" style="font-size: 28px;">shield_lock</span>
+            APKScan
+        </a>
+        <div class="navbar-links">
+            <a href="#metadata" class="navbar-link active" data-section="metadata">Metadata</a>
+            <a href="#verdict" class="navbar-link" data-section="verdict">Verdict</a>
+            <a href="#genai" class="navbar-link" data-section="genai">GenAI</a>
+            <a href="#evidence" class="navbar-link" data-section="evidence">Evidence</a>
+            <a href="#mitre" class="navbar-link" data-section="mitre">MITRE</a>
+            <a href="#iocs" class="navbar-link" data-section="iocs">IOCs</a>
+        </div>
+        <div class="navbar-actions">
+            <button class="btn btn-outline" id="nav-pdf-btn" style="padding: 8px 16px;">
+                <span class="material-symbols-outlined" style="font-size: 16px;">picture_as_pdf</span>
+                Download PDF
+            </button>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="text-headline-md text-primary" style="font-weight: 700;">Analysis</div>
+            <div class="text-body-sm text-muted" id="sidebar-report-id">Loading...</div>
+        </div>
+        <nav class="sidebar-nav" id="sidebar-nav">
+            <a href="#metadata" class="sidebar-link active" data-section="metadata">
+                <span class="material-symbols-outlined">info</span><span>Metadata</span>
+            </a>
+            <a href="#verdict" class="sidebar-link" data-section="verdict">
+                <span class="material-symbols-outlined">verified</span><span>Verdict</span>
+            </a>
+            <a href="#genai" class="sidebar-link" data-section="genai">
+                <span class="material-symbols-outlined">psychology</span><span>GenAI Insights</span>
+            </a>
+            <a href="#evidence" class="sidebar-link" data-section="evidence">
+                <span class="material-symbols-outlined">terminal</span><span>Evidence Log</span>
+            </a>
+            <a href="#mitre" class="sidebar-link" data-section="mitre">
+                <span class="material-symbols-outlined">security_update_warning</span><span>MITRE ATT&CK</span>
+            </a>
+            <a href="#iocs" class="sidebar-link" data-section="iocs">
+                <span class="material-symbols-outlined">list</span><span>IOCs</span>
+            </a>
+            <a href="#recommendations" class="sidebar-link" data-section="recommendations">
+                <span class="material-symbols-outlined">checklist</span><span>Recommendations</span>
+            </a>
+            <a href="#caveats" class="sidebar-link" data-section="caveats">
+                <span class="material-symbols-outlined">report_problem</span><span>Caveats</span>
+            </a>
+        </nav>
+        <div style="padding: 16px;">
+            <a href="/" class="btn btn-primary w-full" style="padding: 14px; text-decoration: none;">
+                <span class="material-symbols-outlined">arrow_back</span>
+                Back to Dashboard
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="report-content">
+        <!-- Loading State -->
+        <div id="report-loading" class="text-center" style="padding: 120px 0;">
+            <span class="spinner" style="width: 48px; height: 48px; margin: 0 auto 24px; display: block;"></span>
+            <p class="text-body-lg text-muted">Loading report...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="report-error" class="hidden text-center" style="padding: 120px 0;">
+            <span class="material-symbols-outlined" style="font-size: 64px; color: var(--color-error); opacity: 0.5; display: block; margin-bottom: 16px;">error</span>
+            <p class="text-body-lg" id="report-error-text">Failed to load report.</p>
+            <a href="/" class="btn btn-outline" style="margin-top: 24px;">Back to Dashboard</a>
+        </div>
+
+        <!-- Report Sections (populated by JS) -->
+        <div id="report-body" class="hidden">
+
+            <!-- 1. Sample Metadata -->
+            <section class="accordion-section open" id="metadata">
+                <div class="glass-card" style="border-left: 4px solid var(--color-primary);">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <h3 class="text-headline-md flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary">data_object</span>
+                            Sample Metadata
+                        </h3>
+                        <span class="material-symbols-outlined text-muted expand-icon">expand_more</span>
+                    </div>
+                    <div class="accordion-body">
+                        <div id="metadata-grid" style="padding: 0 24px 24px; display: grid; grid-template-columns: 1fr; gap: 16px;">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. Verdict Banner -->
+            <section class="accordion-section open" id="verdict">
+                <div class="glass-card" id="verdict-card" style="border-left: 4px solid var(--color-primary); padding: 32px;">
+                    <div id="verdict-content">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- GenAI Interpretation -->
+            <section class="accordion-section open" id="genai">
+                <div class="glass-card genai-card verdict-glow-violet">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <h3 class="text-headline-md flex items-center gap-3">
+                            <span class="material-symbols-outlined text-violet">psychology</span>
+                            GenAI Interpretation
+                        </h3>
+                        <div class="flex items-center gap-3">
+                            <span style="background: var(--color-violet-bg); color: var(--color-violet); padding: 2px 10px; border-radius: var(--radius-full); font-size: 10px; font-weight: 700; text-transform: uppercase; border: 1px solid rgba(139,92,246,0.2);">AI-Generated</span>
+                            <span class="material-symbols-outlined text-muted expand-icon">expand_more</span>
+                        </div>
+                    </div>
+                    <div class="accordion-body">
+                        <div id="genai-content" style="padding: 0 24px 24px;">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. Evidence Log -->
+            <section class="accordion-section open" id="evidence">
+                <div class="glass-card" style="overflow: hidden;">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <h3 class="text-headline-md flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary">terminal</span>
+                            Evidence Log
+                        </h3>
+                        <span class="material-symbols-outlined text-muted expand-icon">expand_more</span>
+                    </div>
+                    <div class="accordion-body">
+                        <div style="overflow-x: auto;">
+                            <table class="evidence-table" id="evidence-table">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Indicator</th>
+                                        <th>Layer</th>
+                                        <th>Weight</th>
+                                        <th>ATT&CK</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="evidence-tbody">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. MITRE ATT&CK -->
+            <section class="accordion-section open" id="mitre">
+                <div class="accordion-header" onclick="toggleAccordion(this)" style="padding: 0 0 16px;">
+                    <h3 class="text-headline-md flex items-center gap-3">
+                        <span class="material-symbols-outlined text-primary">security_update_warning</span>
+                        MITRE ATT&CK for Mobile
+                    </h3>
+                    <span class="material-symbols-outlined text-muted expand-icon">expand_more</span>
+                </div>
+                <div class="accordion-body" id="mitre-body">
+                    <div id="mitre-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--gutter); padding-bottom: 24px;">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. IOCs -->
+            <section class="accordion-section open" id="iocs">
+                <div class="glass-card">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <h3 class="text-headline-md flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary">list</span>
+                            Indicators of Compromise (IOCs)
+                        </h3>
+                        <span class="material-symbols-outlined text-muted expand-icon">expand_more</span>
+                    </div>
+                    <div class="accordion-body">
+                        <div id="iocs-content" style="padding: 0 24px 24px; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 24px;">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. Recommendations -->
+            <section class="accordion-section open" id="recommendations">
+                <div class="accordion-header" onclick="toggleAccordion(this)" style="padding: 0 0 16px;">
+                    <h3 class="text-headline-md flex items-center gap-3">
+                        <span class="material-symbols-outlined text-primary">checklist</span>
+                        Recommendations
+                    </h3>
+                    <span class="material-symbols-outlined text-muted expand-icon">expand_more</span>
+                </div>
+                <div class="accordion-body">
+                    <div id="recommendations-content" class="flex flex-col gap-3" style="padding-bottom: 24px;">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- 8. Analysis Caveats -->
+            <section class="accordion-section open" id="caveats">
+                <div class="accordion-header" onclick="toggleAccordion(this)" style="padding: 0 0 16px;">
+                    <h3 class="text-headline-md flex items-center gap-3">
+                        <span class="material-symbols-outlined" style="color: var(--color-secondary);">report_problem</span>
+                        Analysis Caveats
+                    </h3>
+                    <span class="material-symbols-outlined text-muted expand-icon">expand_more</span>
+                </div>
+                <div class="accordion-body">
+                    <div id="caveats-content" style="padding-bottom: 24px;">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Floating Action Buttons -->
+    <div class="fab-container" id="fab-container" style="display: none;">
+        <button class="fab fab-primary" id="fab-pdf">
+            <span class="material-symbols-outlined">picture_as_pdf</span>
+            Download PDF
+        </button>
+        <button class="fab fab-secondary" id="fab-stix">
+            <span class="material-symbols-outlined" style="font-size: 18px;">share_reviews</span>
+            Export STIX
+        </button>
+        <button class="fab fab-secondary" id="fab-share">
+            <span class="material-symbols-outlined" style="font-size: 18px;">content_copy</span>
+            Share
+        </button>
+    </div>
+
+    <!-- Bottom Nav (Mobile) -->
+    <nav class="bottom-nav">
+        <a href="/" class="bottom-nav-item">
+            <span class="material-symbols-outlined">dashboard</span>
+            <span>Dashboard</span>
+        </a>
+        <a href="#" class="bottom-nav-item active" onclick="document.getElementById('fab-pdf').click()">
+            <span class="material-symbols-outlined">picture_as_pdf</span>
+            <span>PDF</span>
+        </a>
+        <a href="#" class="bottom-nav-item" onclick="document.getElementById('fab-stix').click()">
+            <span class="material-symbols-outlined">share_reviews</span>
+            <span>STIX</span>
+        </a>
+        <a href="#" class="bottom-nav-item" onclick="document.getElementById('fab-share').click()">
+            <span class="material-symbols-outlined">share</span>
+            <span>Share</span>
+        </a>
+    </nav>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/report.js"></script>
+</body>
+</html>

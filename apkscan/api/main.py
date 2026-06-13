@@ -1,14 +1,19 @@
 """FastAPI application factory."""
 
 import logging
+from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from apkscan import __version__
-from apkscan.api import routes_auth, routes_samples, ui
+from apkscan.api import routes_auth, routes_samples
 from apkscan.config import get_settings
 
 logger = logging.getLogger("apkscan.api")
+
+_STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
 
 
 def create_app() -> FastAPI:
@@ -21,7 +26,24 @@ def create_app() -> FastAPI:
 
     app.include_router(routes_auth.router)
     app.include_router(routes_samples.router)
-    app.include_router(ui.router)
+
+    # --- Static files ---
+    if _STATIC_DIR.is_dir():
+        app.mount("/static", StaticFiles(directory=str(_STATIC_DIR)), name="static")
+
+    # --- Page routes (serve HTML files from static/) ---
+    @app.get("/", include_in_schema=False)
+    def index():
+        return FileResponse(str(_STATIC_DIR / "index.html"))
+
+    @app.get("/login", include_in_schema=False)
+    def login_page():
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(url="/")
+
+    @app.get("/report", include_in_schema=False)
+    def report_page():
+        return FileResponse(str(_STATIC_DIR / "report.html"))
 
     @app.get("/health", tags=["meta"])
     def health() -> dict:
