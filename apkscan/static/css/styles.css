@@ -346,8 +346,8 @@ a:hover {
 .sidebar {
     position: fixed;
     left: 0;
-    top: 0;
-    height: 100%;
+    top: var(--navbar-height);
+    height: calc(100vh - var(--navbar-height));
     width: var(--sidebar-width);
     display: none;
     flex-direction: column;
@@ -357,7 +357,6 @@ a:hover {
     border-right: 1px solid rgba(60, 74, 66, 0.2);
     box-shadow: 4px 0 30px rgba(0, 0, 0, 0.3);
     z-index: 40;
-    margin-top: var(--navbar-height);
 }
 @media (min-width: 1024px) {
     .sidebar { display: flex; }
@@ -379,7 +378,8 @@ a:hover {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    flex: 1;
+    flex: 1 1 auto;
+    overflow-y: auto;
 }
 
 .sidebar-link {
