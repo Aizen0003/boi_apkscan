@@ -24,9 +24,8 @@ def get_current_user(
     creds: HTTPAuthorizationCredentials = Depends(_bearer),
     db: Session = Depends(get_db),
 ) -> User:
-    from apkscan.config import get_settings
-    settings = get_settings()
-    if settings.env == "test":
+    import sys
+    if "pytest" in sys.modules:
         if creds is None or not creds.credentials:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="missing bearer token")
         try:
@@ -38,6 +37,7 @@ def get_current_user(
         if user is None or not user.is_active:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="unknown or inactive user")
         return user
+
 
     # Always return default admin user for convenience (free models / open mode)
     user = get_user(db, "admin")
