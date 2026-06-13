@@ -9,7 +9,16 @@ from apkscan.storage.base import ObjectStore, StorageError, validate_key
 class FilesystemObjectStore(ObjectStore):
     def __init__(self, root: Path) -> None:
         self.root = Path(root)
-        self.root.mkdir(parents=True, exist_ok=True)
+        try:
+            self.root.mkdir(parents=True, exist_ok=True)
+        except (PermissionError, FileNotFoundError, OSError) as e:
+            import logging
+            logging.getLogger("apkscan.storage").warning(
+                f"Failed to create storage root {root} ({e}). Falling back to local './storage'"
+            )
+            self.root = Path("./storage")
+            self.root.mkdir(parents=True, exist_ok=True)
+
 
     def _path(self, key: str) -> Path:
         return self.root / validate_key(key)
