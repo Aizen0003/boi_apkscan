@@ -48,9 +48,24 @@ def upload_sample(
     if priority not in (Priority.DEFAULT, Priority.URGENT):
         raise HTTPException(status_code=400, detail="priority must be 'default' or 'urgent'")
 
+    # Enforce maximum file size to prevent OOM crash (e.g. 50MB)
+    if file.size and file.size > 50 * 1024 * 1024:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="APK size exceeds 50MB limit (restricted to prevent server crash)",
+        )
+
     with tempfile.NamedTemporaryFile(delete=False, suffix=".apk") as tmp:
         shutil.copyfileobj(file.file, tmp)
         tmp_path = tmp.name
+
+    if Path(tmp_path).stat().st_size > 50 * 1024 * 1024:
+        Path(tmp_path).unlink(missing_ok=True)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="APK size exceeds 50MB limit (restricted to prevent server crash)",
+        )
+
     try:
         result = ingest_sample(
             src_path=Path(tmp_path),

@@ -57,6 +57,13 @@ async function startUpload(file) {
         return;
     }
 
+    // Enforce 50MB size limit to prevent OOM crash on Render free tier
+    const MAX_SIZE = 50 * 1024 * 1024; // 50MB
+    if (file.size > MAX_SIZE) {
+        showToast('APK size exceeds 50MB limit (restricted to prevent OOM crash)', 'error');
+        return;
+    }
+
     const priority = document.querySelector('input[name="priority"]:checked')?.value || 'default';
     const statusDiv = document.getElementById('upload-status');
     const statusText = document.getElementById('upload-status-text');
