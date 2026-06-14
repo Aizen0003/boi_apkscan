@@ -122,8 +122,35 @@ def get_report(report_id: str, user=Depends(require_reader), db: Session = Depen
     report = _load_report(db, report_id)
     if report.report_json_key and store.exists(report.report_json_key):
         return JSONResponse(content=json.loads(store.get_bytes(report.report_json_key)))
-    # fallback: reconstruct minimal view from embedded JSON
-    return JSONResponse(content={"score": report.score_json, "genai": report.genai_json})
+    
+    # fallback: reconstruct complete view from database embedded JSON (useful for ephemeral environments/redeployments)
+    from apkscan.schema import FeatureSet, ScoreResult, GenAIInterpretation, SignOffBlock
+    from apkscan.reporting.builder import build_report_document
+
+    features = FeatureSet.model_validate(report.features_json)
+    score = ScoreResult.model_validate(report.score_json)
+    genai = GenAIInterpretation.model_validate(report.genai_json) if report.genai_json else None
+    
+    # Reconstruct the signoff block based on database status and logs
+    signoff = SignOffBlock(
+        required=report.requires_signoff,
+        status="not_required" if not report.requires_signoff else ("pending" if report.status == ReportStatus.PENDING_SIGNOFF else ("approved" if report.status == ReportStatus.FINAL else "rejected")),
+    )
+    if report.signoffs:
+        latest_signoff = sorted(report.signoffs, key=lambda s: s.signed_at)[-1]
+        signoff.decision = latest_signoff.decision
+        signoff.signed_by = latest_signoff.user
+        signoff.note = latest_signoff.note
+        signoff.signed_at = latest_signoff.signed_at
+
+    doc = build_report_document(
+        features=features,
+        score=score,
+        genai=genai,
+        signoff=signoff,
+        report_id=report.id,
+    )
+    return JSONResponse(content=doc.model_dump(mode="json"))
 
 
 @router.get("/reports/{report_id}/pdf")
