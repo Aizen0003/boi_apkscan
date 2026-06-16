@@ -181,12 +181,9 @@ h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.02em; line-hei
     background-position: center, center;
 }
 
-/* Hero text flips to light on the dark band */
+/* Hero text flips to light on the dark band (title/accent/lede set on their base rules below) */
 .hero .eyebrow { color: var(--color-accent-on-dark); }
 .hero .eyebrow::before { background: var(--color-accent-on-dark); }
-.hero__title { color: var(--color-ink-on-dark); }
-.hero__title .accent { color: var(--color-accent-on-dark); }
-.hero__lede { color: var(--color-ink-on-dark-muted); }
 .hero .btn--outline {
     background: oklch(100% 0 0 / 0.06);
     color: var(--color-white);
@@ -244,14 +241,14 @@ h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.02em; line-hei
 .hero__title {
     font-size: var(--text-display);
     font-weight: 800;
-    color: var(--color-ink);
+    color: var(--color-ink-on-dark);
     min-width: 0;
 }
-.hero__title .accent { color: var(--color-accent); }
+.hero__title .accent { color: var(--color-accent-on-dark); }
 .hero__lede {
     margin-top: var(--space-lg);
     font-size: var(--text-lg);
-    color: var(--color-ink-muted);
+    color: var(--color-ink-on-dark-muted);
     max-width: 46ch;
 }
 .hero__actions { margin-top: var(--space-xl); display: flex; flex-wrap: wrap; gap: var(--space-sm); }
@@ -316,6 +313,32 @@ h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.02em; line-hei
 .threat .ico { grid-column: 1; color: var(--color-malicious); font-size: 24px; }
 .threat h3 { grid-column: 2; font-size: var(--text-md); font-weight: 700; color: var(--color-ink); letter-spacing: -0.01em; }
 .threat p { grid-column: 1 / -1; font-size: var(--text-sm); color: var(--color-ink-muted); }
+
+/* --- Dark futuristic flux band (reusable section treatment) --- */
+.band-flux {
+    position: relative;
+    isolation: isolate;
+    background-color: var(--color-hero-dark);
+    background-image:
+        linear-gradient(180deg, oklch(11% 0.025 165 / 0.93) 0%, oklch(13% 0.03 168 / 0.88) 100%),
+        url("/static/img/hero/flux-green.jpg");
+    background-size: cover, cover;
+    background-position: center, center;
+    border-block: var(--rule-hair) solid oklch(100% 0 0 / 0.08);
+}
+.band-flux .section-head h2 { color: var(--color-ink-on-dark); }
+.band-flux .section-head p { color: var(--color-ink-on-dark-muted); }
+.band-flux .eyebrow { color: var(--color-accent-on-dark); }
+.band-flux .eyebrow::before { background: var(--color-accent-on-dark); }
+.band-flux .stage {
+    background: oklch(100% 0 0 / 0.05);
+    border-color: oklch(100% 0 0 / 0.12);
+}
+.band-flux .stage.optional { background: oklch(100% 0 0 / 0.02); }
+.band-flux .stage__label { color: var(--color-ink-on-dark); }
+.band-flux .stage__note { color: var(--color-ink-on-dark-muted); }
+.band-flux .stage__n { color: var(--color-accent-on-dark); }
+.band-flux .pipeline-note { color: var(--color-ink-on-dark-muted); }
 
 /* --- Pipeline (Tier-A CSS step sequence) --- */
 .pipeline-flow {
