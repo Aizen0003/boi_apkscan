@@ -443,6 +443,12 @@ h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.02em; line-hei
 }
 .builton__logos img:hover { filter: none; opacity: 1; transform: translateY(-2px); }
 
+/* "Built on" strip on a dark flux band — logos render white, full colour on hover */
+.builton-band.band-flux { border-top: none; }
+.band-flux .builton__label { color: var(--color-ink-on-dark-muted); }
+.band-flux .builton__logos img { filter: grayscale(1) brightness(0) invert(1); opacity: 0.7; }
+.band-flux .builton__logos img:hover { filter: none; opacity: 1; transform: translateY(-2px); }
+
 /* --- Governance strip --- */
 .governance { background: var(--color-paper-2); border-block: var(--rule-hair) solid var(--color-rule); }
 .gov-grid {
