@@ -23,6 +23,11 @@
     --color-accent-bloom: oklch(58% 0.12 165);
     --color-on-accent: oklch(100% 0 0);
     --color-white: oklch(100% 0 0);
+    /* light-on-dark (futuristic dark hero / CTA band) */
+    --color-accent-on-dark: oklch(82% 0.17 162);
+    --color-ink-on-dark: oklch(92% 0.01 160);
+    --color-ink-on-dark-muted: oklch(80% 0.015 160);
+    --color-hero-dark: oklch(15% 0.03 165);
 
     /* --- Verdict (functional) --- */
     --color-benign: oklch(50% 0.123 159);

@@ -155,19 +155,47 @@ h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.02em; line-hei
 .section-head h2 { font-size: var(--text-4xl); font-weight: 700; color: var(--color-ink); }
 .section-head p { margin-top: var(--space-md); font-size: var(--text-lg); color: var(--color-ink-muted); max-width: 52ch; }
 
-/* --- Hero --- */
+/* --- Hero (dark futuristic band) --- */
 .hero {
-    padding-top: calc(var(--space-3xl) + var(--space-md));
+    padding-top: calc(var(--space-3xl) + var(--space-lg));
     padding-bottom: var(--space-2xl);
     position: relative;
     overflow: clip;
+    isolation: isolate;
+    background-color: var(--color-hero-dark);
 }
+/* Flux image bleeds behind the whole hero, darkened heavily on the left so the
+   headline stays legible; the glow surfaces toward the right. */
 .hero__bg {
     position: absolute;
     inset: 0;
     z-index: -1;
-    /* single subtle emerald wash (gate 29: one hue, fixed, no animation) */
-    background: radial-gradient(ellipse 55% 45% at 88% 2%, var(--color-accent-soft) 0%, transparent 58%);
+    background-color: var(--color-hero-dark);
+    background-image:
+        linear-gradient(96deg,
+            oklch(11% 0.025 165 / 0.95) 0%,
+            oklch(11% 0.025 165 / 0.82) 46%,
+            oklch(13% 0.03 165 / 0.5) 100%),
+        url("/static/img/hero/flux-green.jpg");
+    background-size: cover, cover;
+    background-position: center, center;
+}
+
+/* Hero text flips to light on the dark band */
+.hero .eyebrow { color: var(--color-accent-on-dark); }
+.hero .eyebrow::before { background: var(--color-accent-on-dark); }
+.hero__title { color: var(--color-ink-on-dark); }
+.hero__title .accent { color: var(--color-accent-on-dark); }
+.hero__lede { color: var(--color-ink-on-dark-muted); }
+.hero .btn--outline {
+    background: oklch(100% 0 0 / 0.06);
+    color: var(--color-white);
+    border-color: oklch(100% 0 0 / 0.4);
+}
+.hero .btn--outline:hover {
+    background: oklch(100% 0 0 / 0.14);
+    color: var(--color-white);
+    border-color: oklch(100% 0 0 / 0.7);
 }
 .hero__grid {
     display: grid;
@@ -198,9 +226,20 @@ h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.02em; line-hei
     border: var(--rule-hair) solid var(--color-rule);
     box-shadow: var(--shadow-lg);
 }
-.hero__showcase .shot { width: 100%; margin: 0; }
+.hero__showcase .shot {
+    width: 100%;
+    margin: 0;
+    transform: rotate(-1.8deg);
+    transition: transform var(--dur-slow) var(--ease-out);
+    box-shadow: 0 28px 60px -24px oklch(0% 0 0 / 0.55), 0 0 0 1px oklch(100% 0 0 / 0.06);
+}
+.hero__showcase:hover .shot { transform: rotate(0deg) scale(1.012); }
 @media (max-width: 939px) {
     .hero__showcase { min-height: 0; }
+    .hero__showcase .shot { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .hero__showcase .shot { transform: none; transition: none; }
 }
 .hero__title {
     font-size: var(--text-display);
@@ -396,14 +435,18 @@ h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.02em; line-hei
 
 /* --- CTA band (deep emerald) --- */
 .cta-band {
-    background:
-        radial-gradient(ellipse 50% 80% at 80% 10%, color-mix(in oklch, var(--color-accent-bloom) 45%, transparent) 0%, transparent 60%),
-        linear-gradient(135deg, var(--color-accent-deep) 0%, var(--color-accent-deepest) 100%);
+    background-color: var(--color-accent-deepest);
+    background-image:
+        linear-gradient(180deg, oklch(14% 0.04 175 / 0.62) 0%, oklch(12% 0.04 178 / 0.82) 100%),
+        url("/static/img/hero/teal-waves.jpg");
+    background-size: cover, cover;
+    background-position: center, center;
     border-radius: var(--radius-2xl);
     padding: var(--space-3xl) var(--space-xl);
     text-align: center;
     color: var(--color-white);
     margin-block: var(--space-2xl);
+    overflow: hidden;
 }
 .cta-band h2 { font-size: var(--text-4xl); font-weight: 800; color: var(--color-white); }
 .cta-band p { margin-top: var(--space-sm); color: color-mix(in srgb, var(--color-white) 82%, transparent); font-size: var(--text-lg); max-width: 48ch; margin-inline: auto; }
