@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>APKScan — Self-hosted Android malware analysis & risk scoring</title>
+    <meta name="description" content="APKScan analyzes suspicious Android APKs with deterministic static analysis, a grounded local-GenAI layer, ML classification, and an isolated sandbox — producing explainable, auditable risk scores and SOC-ready reports. On-premises by default." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/css/tokens.css?v=6" />
+    <link rel="stylesheet" href="/static/css/landing.css?v=6" />
+    <script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+    <!-- N5 · Floating pill nav -->
+    <nav class="nav-pill" aria-label="Primary">
+        <a class="nav-pill__brand" href="/">
+            <span class="mark material-symbols-outlined" style="font-size: 22px;">shield_lock</span>
+            APKScan
+        </a>
+        <ul class="nav-pill__links">
+            <li><a href="#threats">Threat model</a></li>
+            <li><a href="#pipeline">How it works</a></li>
+            <li><a href="#capabilities">Capabilities</a></li>
+            <li><a href="#governance">Governance</a></li>
+        </ul>
+        <a class="nav-pill__cta" href="/app">
+            Open dashboard
+            <span class="material-symbols-outlined" style="font-size: 16px;">arrow_forward</span>
+        </a>
+    </nav>
+
+    <!-- Hero -->
+    <header class="hero">
+        <div class="hero__bg" aria-hidden="true"></div>
+        <div class="wrap hero__grid">
+            <div class="hero__copy">
+                <p class="eyebrow">On-premises Android malware analysis</p>
+                <h1 class="hero__title">See what an APK <span class="accent">really does.</span></h1>
+                <p class="hero__lede">
+                    APKScan pulls apart suspicious Android apps with deterministic static analysis,
+                    a grounded local-GenAI layer, an ML classifier, and an isolated sandbox — and hands
+                    you an explainable, auditable risk score for the banking-fraud threat model.
+                </p>
+                <div class="hero__actions">
+                    <a class="btn btn--fill btn--lg" href="/app">Open the dashboard</a>
+                    <a class="btn btn--outline btn--lg" href="#pipeline">See how it works</a>
+                </div>
+                <div class="hero__cmd" role="img" aria-label="Example command: apkscan analyze suspicious.apk --pdf report.pdf">
+                    <span class="sigil">$</span>
+                    <span>apkscan analyze suspicious.apk <span class="flag">--mode high_recall --pdf report.pdf</span></span>
+                </div>
+            </div>
+            <div class="hero__showcase reveal">
+                <figure class="shot">
+                    <img src="/static/img/app-dashboard.png?v=2" alt="The APKScan analysis dashboard showing the upload zone and recent analyses." width="1280" height="900" loading="eager" />
+                    <figcaption>The APKScan dashboard — upload an APK, watch the pipeline run, review the verdict.</figcaption>
+                </figure>
+            </div>
+        </div>
+    </header>
+
+    <!-- Threat model -->
+    <section class="threats" id="threats">
+        <div class="wrap">
+            <div class="section-head reveal">
+                <p class="eyebrow">The threat model</p>
+                <h2>Built for how banking malware actually behaves.</h2>
+                <p>Indian banking-fraud campaigns don't look like textbook viruses. APKScan's rules and
+                   detections are shaped around the techniques these apps really use.</p>
+            </div>
+            <div class="threat-grid">
+                <article class="threat reveal">
+                    <span class="ico material-symbols-outlined">layers</span>
+                    <h3>Overlay attacks</h3>
+                    <p>Fake screens drawn on top of legitimate banking apps to capture credentials.</p>
+                </article>
+                <article class="threat reveal">
+                    <span class="ico material-symbols-outlined">accessibility_new</span>
+                    <h3>Accessibility abuse</h3>
+                    <p>Accessibility services hijacked to read screens, tap buttons, and grant permissions.</p>
+                </article>
+                <article class="threat reveal">
+                    <span class="ico material-symbols-outlined">sms</span>
+                    <h3>SMS / OTP interception</h3>
+                    <p>Silent reading and forwarding of one-time passwords to defeat 2FA.</p>
+                </article>
+                <article class="threat reveal">
+                    <span class="ico material-symbols-outlined">keyboard</span>
+                    <h3>Keylogging & screen capture</h3>
+                    <p>Recording keystrokes and screen content to harvest sensitive input.</p>
+                </article>
+                <article class="threat reveal">
+                    <span class="ico material-symbols-outlined">settings_remote</span>
+                    <h3>RATs & droppers</h3>
+                    <p>Remote-access trojans and staged droppers that fetch payloads after install.</p>
+                </article>
+                <article class="threat reveal">
+                    <span class="ico material-symbols-outlined">account_balance</span>
+                    <h3>Automated transfer systems</h3>
+                    <p>ATS logic that moves money directly from a compromised device.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pipeline -->
+    <section id="pipeline" class="band-flux">
+        <div class="wrap">
+            <div class="section-head reveal">
+                <p class="eyebrow">How it works</p>
+                <h2>One pass. Ten stages. A logged trail behind every verdict.</h2>
+                <p>An APK enters a single-host async pipeline. Each stage records its evidence, so the
+                   final score is explainable end to end.</p>
+            </div>
+            <div class="pipeline-flow reveal">
+                <div class="stage"><span class="stage__n">01</span><span class="stage__label">Upload</span><span class="stage__note">Hash &amp; dedupe</span></div>
+                <div class="stage"><span class="stage__n">02</span><span class="stage__label">Queue</span><span class="stage__note">Async worker</span></div>
+                <div class="stage"><span class="stage__n">03</span><span class="stage__label">Static analysis</span><span class="stage__note">Multi-tool extract</span></div>
+                <div class="stage optional"><span class="stage__n">04</span><span class="stage__label">Dynamic sandbox</span><span class="stage__note">On escalation only</span></div>
+                <div class="stage"><span class="stage__n">05</span><span class="stage__label">Feature store</span><span class="stage__note">Canonical schema</span></div>
+                <div class="stage"><span class="stage__n">06</span><span class="stage__label">GenAI interpret</span><span class="stage__note">Grounded, cited</span></div>
+                <div class="stage"><span class="stage__n">07</span><span class="stage__label">Scoring engine</span><span class="stage__note">Rules + ML fusion</span></div>
+                <div class="stage"><span class="stage__n">08</span><span class="stage__label">Report</span><span class="stage__note">PDF &amp; JSON</span></div>
+                <div class="stage"><span class="stage__n">09</span><span class="stage__label">Storage</span><span class="stage__note">Hashed, isolated</span></div>
+                <div class="stage"><span class="stage__n">10</span><span class="stage__label">Export</span><span class="stage__note">STIX 2.1 API</span></div>
+            </div>
+            <p class="pipeline-note">GenAI explains — the deterministic rule layer decides the verdict.</p>
+        </div>
+    </section>
+
+    <!-- Capabilities -->
+    <section id="capabilities">
+        <div class="wrap">
+            <div class="section-head reveal">
+                <p class="eyebrow">What's inside</p>
+                <h2>Deterministic where it counts. Interpretive where it helps.</h2>
+            </div>
+            <div class="cap-grid">
+                <article class="cap reveal">
+                    <span class="ico material-symbols-outlined">construction</span>
+                    <h3>Multi-tool extraction</h3>
+                    <p>Features pulled from a battery of analyzers, plus certificate, Firebase, and domain checks.</p>
+                    <div class="tools">
+                        <span class="tool-chip">MobSF</span><span class="tool-chip">Androguard</span><span class="tool-chip">APKiD</span><span class="tool-chip">Quark</span><span class="tool-chip">YARA</span>
+                    </div>
+                </article>
+                <article class="cap reveal">
+                    <span class="ico material-symbols-outlined">rule</span>
+                    <h3>Deterministic rule scoring</h3>
+                    <p>Permission weights, dangerous combinations, Quark behavior scores, and YARA hits — the layer that decides every verdict.</p>
+                </article>
+                <article class="cap reveal">
+                    <span class="ico material-symbols-outlined">psychology</span>
+                    <h3>Grounded local GenAI</h3>
+                    <p>Qwen2.5-Coder via Ollama interprets code. Every claim must cite a concrete artifact; ungrounded claims are withheld.</p>
+                </article>
+                <article class="cap reveal">
+                    <span class="ico material-symbols-outlined">forest</span>
+                    <h3>ML classifier</h3>
+                    <p>RandomForest &amp; XGBoost over permission/API features, with SHAP feature-importance explanations and drift monitoring.</p>
+                </article>
+                <article class="cap reveal">
+                    <span class="ico material-symbols-outlined">verified</span>
+                    <h3>Explainable verdict</h3>
+                    <p>A 0–100 risk score, a Benign / Suspicious / Malicious band, severity and confidence — backed by a full evidence log.</p>
+                </article>
+                <article class="cap reveal">
+                    <span class="ico material-symbols-outlined">description</span>
+                    <h3>SOC-ready output</h3>
+                    <p>PDF &amp; JSON reports, MITRE ATT&amp;CK mapping, STIX 2.1 IOC export, and analyst sign-off on high-severity verdicts.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Built on (tech stack) -->
+    <section class="builton-band band-flux" aria-label="Built on">
+        <div class="wrap builton reveal">
+            <span class="builton__label">Built on a hardened, open stack</span>
+            <ul class="builton__logos">
+                <li><img src="/static/img/logos/android.svg" alt="Android" /></li>
+                <li><img src="/static/img/logos/python.svg" alt="Python" /></li>
+                <li><img src="/static/img/logos/fastapi.svg" alt="FastAPI" /></li>
+                <li><img src="/static/img/logos/postgresql.svg" alt="PostgreSQL" /></li>
+                <li><img src="/static/img/logos/redis.svg" alt="Redis" /></li>
+                <li><img src="/static/img/logos/docker.svg" alt="Docker" /></li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Governance -->
+    <section class="governance" id="governance">
+        <div class="wrap">
+            <div class="section-head reveal">
+                <p class="eyebrow">Governance posture</p>
+                <h2>Samples may be live malware. The system is built to assume it.</h2>
+            </div>
+            <div class="gov-grid">
+                <div class="gov-item reveal">
+                    <span class="ico material-symbols-outlined">dns</span>
+                    <div>
+                        <h3>On-premises by default</h3>
+                        <p>Everything runs on your own hardware. No sample or report data leaves the host.</p>
+                    </div>
+                </div>
+                <div class="gov-item reveal">
+                    <span class="ico material-symbols-outlined">cloud_off</span>
+                    <div>
+                        <h3>Commercial LLM off by default</h3>
+                        <p>Local models only. External LLM egress stays disabled unless governance explicitly enables it.</p>
+                    </div>
+                </div>
+                <div class="gov-item reveal">
+                    <span class="ico material-symbols-outlined">shield</span>
+                    <div>
+                        <h3>Untrusted by construction</h3>
+                        <p>Every APK-derived string is treated as data, never instructions — prompt-injection is isolated by design.</p>
+                    </div>
+                </div>
+                <div class="gov-item reveal">
+                    <span class="ico material-symbols-outlined">fact_check</span>
+                    <div>
+                        <h3>Auditable &amp; access-controlled</h3>
+                        <p>A hash-chained, tamper-evident audit log, with JWT auth across admin / analyst / viewer roles.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA band -->
+    <section style="padding-block: 0;">
+        <div class="wrap">
+            <div class="cta-band reveal">
+                <h2>Run your first scan.</h2>
+                <p>Drop an APK into the dashboard and watch the pipeline turn raw bytes into an explainable verdict.</p>
+                <div class="cta-band__actions">
+                    <a class="btn btn--fill btn--lg" href="/app">Open the dashboard</a>
+                    <a class="btn btn--outline btn--lg" href="https://github.com/aditya-prabhakar-13/boi_apkscan" target="_blank" rel="noopener">View on GitHub</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ft5 · Statement footer -->
+    <footer class="wrap">
+        <div class="foot-stmt">
+            <p class="foot-stmt__line">GenAI explains. The deterministic layer <span class="accent">decides.</span></p>
+            <ul class="foot-stmt__links" style="list-style:none;">
+                <li><a href="#threats">Threat model</a></li>
+                <li><a href="#pipeline">How it works</a></li>
+                <li><a href="#capabilities">Capabilities</a></li>
+                <li><a href="#governance">Governance</a></li>
+                <li><a href="/app">Dashboard</a></li>
+                <li><a href="https://github.com/aditya-prabhakar-13/boi_apkscan" target="_blank" rel="noopener">GitHub</a></li>
+            </ul>
+            <div class="foot-stmt__meta">
+                <span class="wordmark">APKScan</span>
+                <span class="muted">© 2025 APKScan · AGPL-3.0-or-later</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll fade-up — single motion primitive, reduced-motion safe (CSS handles the opt-out)
+        (function () {
+            var els = document.querySelectorAll('.reveal');
+            var revealAll = function () { els.forEach(function (el) { el.classList.add('in'); }); };
+            if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                revealAll();
+                return;
+            }
+            var fired = false;
+            var io = new IntersectionObserver(function (entries) {
+                fired = true;
+                entries.forEach(function (e) {
+                    if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+                });
+            }, { rootMargin: '0px 0px -10% 0px', threshold: 0.05 });
+            els.forEach(function (el) { io.observe(el); });
+            // Safety net: some embedded webviews never fire IO callbacks — never leave content hidden.
+            setTimeout(function () { if (!fired) revealAll(); }, 1500);
+        })();
+    </script>
+</body>
+</html>

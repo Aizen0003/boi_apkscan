@@ -9,12 +9,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/static/css/styles.css" />
+    <link rel="stylesheet" href="/static/css/styles.css?v=2" />
 </head>
 <body>
     <!-- Navbar -->
     <nav class="navbar">
-        <a href="/" class="navbar-brand" style="text-decoration: none;">
+        <a href="/app" class="navbar-brand" style="text-decoration: none;">
             <span class="material-symbols-outlined" style="font-size: 28px;">shield_lock</span>
             APKScan
         </a>
@@ -67,7 +67,7 @@
             </a>
         </nav>
         <div style="padding: 16px;">
-            <a href="/" class="btn btn-primary w-full" style="padding: 14px; text-decoration: none;">
+            <a href="/app" class="btn btn-primary w-full" style="padding: 14px; text-decoration: none;">
                 <span class="material-symbols-outlined">arrow_back</span>
                 Back to Dashboard
             </a>
@@ -86,7 +86,7 @@
         <div id="report-error" class="hidden text-center" style="padding: 120px 0;">
             <span class="material-symbols-outlined" style="font-size: 64px; color: var(--color-error); opacity: 0.5; display: block; margin-bottom: 16px;">error</span>
             <p class="text-body-lg" id="report-error-text">Failed to load report.</p>
-            <a href="/" class="btn btn-outline" style="margin-top: 24px;">Back to Dashboard</a>
+            <a href="/app" class="btn btn-outline" style="margin-top: 24px;">Back to Dashboard</a>
         </div>
 
         <!-- Report Sections (populated by JS) -->
@@ -257,7 +257,7 @@
 
     <!-- Bottom Nav (Mobile) -->
     <nav class="bottom-nav">
-        <a href="/" class="bottom-nav-item">
+        <a href="/app" class="bottom-nav-item">
             <span class="material-symbols-outlined">dashboard</span>
             <span>Dashboard</span>
         </a>

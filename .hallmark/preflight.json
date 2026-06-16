@@ -1,0 +1,11 @@
+{
+  "scan_date": "2026-06-16",
+  "framework": "FastAPI (Python) serving static vanilla HTML/CSS/JS — no build step",
+  "font_stack": "Outfit (display) + Inter (body) + JetBrains Mono (code) via Google Fonts",
+  "palette": "was dark Material-3 + glassmorphism; redesigned to light Verdant (emerald) OKLCH tokens",
+  "motion": "none installed — pure CSS transitions; landing adds IntersectionObserver fade-up",
+  "spacing": "custom CSS vars (4pt-ish); landing standardized on --space-* 4pt scale",
+  "static_dir": "apkscan/static",
+  "preserved": ["font stack", "all CSS class names + element ids", "verdict color semantics", "JS hooks"],
+  "introduced": ["light Verdant theme", "Workbench landing page", "N5 nav", "Ft5 footer", "tokens.css", "slop-test gates"]
+}
