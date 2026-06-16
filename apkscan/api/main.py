@@ -33,13 +33,16 @@ def create_app() -> FastAPI:
 
     # --- Page routes (serve HTML files from static/) ---
     @app.get("/", include_in_schema=False)
-    def index():
+    def landing():
+        return FileResponse(str(_STATIC_DIR / "landing.html"))
+
+    @app.get("/app", include_in_schema=False)
+    def dashboard():
         return FileResponse(str(_STATIC_DIR / "index.html"))
 
     @app.get("/login", include_in_schema=False)
     def login_page():
-        from fastapi.responses import RedirectResponse
-        return RedirectResponse(url="/")
+        return FileResponse(str(_STATIC_DIR / "login.html"))
 
     @app.get("/report", include_in_schema=False)
     def report_page():

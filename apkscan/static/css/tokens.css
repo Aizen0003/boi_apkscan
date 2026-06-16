@@ -1,0 +1,89 @@
+/* Hallmark · tokens · theme: Verdant (light · emerald) · genre: modern-minimal
+ * Portable design tokens for APKScan. Shared by the landing page and the app shell.
+ * ============================================================ */
+:root {
+    /* --- Paper & surfaces (light) --- */
+    --color-paper: oklch(98.2% 0.004 160);
+    --color-paper-2: oklch(100% 0 0);
+    --color-paper-3: oklch(97.2% 0.004 160);
+    --color-paper-dim: oklch(95% 0.005 160);
+
+    /* --- Ink (cool-neutral slate) --- */
+    --color-ink: oklch(26% 0.012 250);
+    --color-ink-2: oklch(38% 0.012 250);
+    --color-ink-muted: oklch(46% 0.012 250);
+    --color-ink-faint: oklch(60% 0.012 250);
+
+    /* --- Accent (emerald) --- */
+    --color-accent: oklch(50% 0.123 159);
+    --color-accent-strong: oklch(43% 0.115 160);
+    --color-accent-soft: oklch(95.5% 0.04 160);
+    --color-accent-deep: oklch(30% 0.08 164);
+    --color-accent-deepest: oklch(26% 0.07 168);
+    --color-accent-bloom: oklch(58% 0.12 165);
+    --color-on-accent: oklch(100% 0 0);
+    --color-white: oklch(100% 0 0);
+
+    /* --- Verdict (functional) --- */
+    --color-benign: oklch(50% 0.123 159);
+    --color-suspicious: oklch(56% 0.13 66);
+    --color-malicious: oklch(53% 0.19 26);
+    --color-benign-soft: oklch(95.5% 0.04 160);
+    --color-suspicious-soft: oklch(95% 0.05 75);
+    --color-malicious-soft: oklch(95% 0.05 26);
+
+    /* --- Rules / focus --- */
+    --color-rule: oklch(91% 0.005 250);
+    --color-rule-strong: oklch(85% 0.008 250);
+    --color-focus: oklch(50% 0.123 159);
+    --rule-hair: 1px;
+
+    /* --- Type --- */
+    --font-display: 'Outfit', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+    --text-display: clamp(2.75rem, 6vw + 0.5rem, 5rem);
+    --text-display-s: clamp(2.25rem, 4.5vw + 0.5rem, 3.5rem);
+    --text-4xl: clamp(1.875rem, 3vw + 0.5rem, 2.75rem);
+    --text-3xl: clamp(1.5rem, 2vw + 0.4rem, 2rem);
+    --text-2xl: 1.5rem;
+    --text-xl: 1.25rem;
+    --text-lg: 1.125rem;
+    --text-md: 1rem;
+    --text-sm: 0.875rem;
+    --text-xs: 0.75rem;
+
+    /* --- Space (4pt scale) --- */
+    --space-2xs: 4px;
+    --space-xs: 8px;
+    --space-sm: 12px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 40px;
+    --space-2xl: 64px;
+    --space-3xl: 96px;
+    --page-gutter: clamp(20px, 5vw, 64px);
+
+    /* --- Radius --- */
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --radius-2xl: 1.5rem;
+    --radius-full: 9999px;
+
+    /* --- Easing & duration --- */
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    --dur-fast: 150ms;
+    --dur-base: 240ms;
+    --dur-slow: 420ms;
+
+    /* --- Shadows --- */
+    --shadow-sm: 0 1px 2px oklch(25% 0.02 250 / 0.06);
+    --shadow-md: 0 4px 16px -6px oklch(25% 0.02 250 / 0.12);
+    --shadow-lg: 0 14px 36px -14px oklch(25% 0.02 250 / 0.18);
+    --shadow-emerald: 0 6px 20px -8px oklch(50% 0.123 159 / 0.35);
+}
